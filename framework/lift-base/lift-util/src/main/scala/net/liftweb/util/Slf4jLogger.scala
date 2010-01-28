@@ -17,7 +17,9 @@
 package net.liftweb {
 package util {
 
-import _root_.org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{Logger, LoggerFactory}
+import common._
+import Helpers._
 
 /**
  * Object use to configure lift to use slf4j for as internal logging.
@@ -51,24 +53,74 @@ import _root_.org.slf4j.{Logger, LoggerFactory}
  *    &lt;dependency>
  *      &lt;groupId>ch.qos.logback&lt;/groupId>
  *      &lt;artifactId>logback-classic&lt;/artifactId>
- *      &lt;version>0.9.8&lt;/version>
+ *      &lt;version>0.9.18&lt;/version>
  *    &lt;/dependency>
  * </pre>
  *
  */
 object Slf4jLogBoot {
-  private def _loggerByClass(clz: Class[AnyRef]): LiftLogger = new Slf4jLogger(LoggerFactory.getLogger(clz))
+  private def _loggerByClass(clz: Class[_]): LiftLogger = new Slf4jLogger(LoggerFactory.getLogger(clz))
   private def _loggerByName(name: String): LiftLogger = new Slf4jLogger(LoggerFactory.getLogger(name))
 
   /**
    * enable slf4j as logging system for lift (internal, not for lift based application)
    */
-  def enable() {
-    LogBoot.loggerByName = _loggerByName
-    LogBoot.loggerByClass = _loggerByClass
+  def enable() = {
+    LogBoot._loggerByName = _loggerByName
+    LogBoot._loggerByClass = _loggerByClass
+    true
   }
 }
 
+
+/**
+ * This object provides logback over Slf4j setup utilities.
+ *
+ * To provide your own logback configuration, add a logback.xml
+ * file to your classpath.
+ *
+ * If you want to provide a configuration file for a subset of your application
+ * or for a specific environment, Lift expects configuration files to be named
+ * in a manner relating to the context in which they are being used. The standard
+ * name format is:
+ *
+ * <pre>
+ *   modeName.hostName.userName.filename.extension
+ * </pre>
+ *
+ * with hostName and userName being optional, and modeName being one of
+ * 'test', 'staging', 'production', 'pilot', 'profile', or 'default.
+ * Thus, if you name your logback config file 'default.logback.xml'
+ * it will be picked up correctly.
+ */
+object LogbackLogBoot {
+  def setup() = {
+    import ch.qos.logback.classic.LoggerContext;
+    import ch.qos.logback.core.util.StatusPrinter;
+    import ch.qos.logback.classic.joran.JoranConfigurator;
+
+    def findTheFile: Box[(_root_.java.net.URL, String)] = (first(Props.toTry.flatMap(f => {List(f()+"logback.xml")}))
+    (name =>tryo(getClass.getResource(name)).filter(_ ne null).map(s => (s, name))))
+
+
+    findTheFile match {
+      case Full((url, name)) => {
+          val lc = LoggerFactory.getILoggerFactory().asInstanceOf[LoggerContext];
+          val configurator = new JoranConfigurator();
+          configurator.setContext(lc);
+          // the context was probably already configured by default configuration
+          // rules
+          lc.reset();
+          configurator.doConfigure(url);
+          StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+      }
+      case _ =>
+    }
+
+    Slf4jLogBoot.enable
+  }
+}
+  
 /**
  * Adapter use internaly by lift as Logger, if Slf4jLogBoot is enabled.
  * @see Slf4jLogBoot
