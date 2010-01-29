@@ -10,4 +10,36 @@
   <artifactId>lift-hellolift</artifactId>
   <packaging>war</packaging>
   <name>HelloLift example application</name>
+
+
+  <dependencies>
+    <!-- Include Slf4j and Logback logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.5.10</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>0.9.18</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- Exclude log4j -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>lift-mapper</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+
+
 </project>

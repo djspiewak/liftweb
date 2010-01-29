@@ -16,6 +16,11 @@ import _root_.com.hellolift.model._
   */
 class Boot {
   def boot {
+    // Use Locback over Slf4j for logging - Slf4j and Logback dependencies should be included
+    LogBoot.loggerSetup = LogbackLogBoot.setup
+
+    Log.info("Here's a log message logged with logback over Slf4j!")
+
     // add the connection manager if there's not already a JNDI connection defined
     if (!DB.jndiJdbcConnAvailable_?) DB.defineConnectionManager(DefaultConnectionIdentifier, DBVendor)
 
