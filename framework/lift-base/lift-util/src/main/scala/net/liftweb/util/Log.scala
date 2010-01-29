@@ -86,6 +86,8 @@ object LogBoot {
   private[util] var _loggerByName: String => LiftLogger = _
   private[util] var _loggerByClass: Class[_] => LiftLogger = _
 
+  var defaultProps:String = _
+
   /**
    * Override this to initialize a different logging system
    *

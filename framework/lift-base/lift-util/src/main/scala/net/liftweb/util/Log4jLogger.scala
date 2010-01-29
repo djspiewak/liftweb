@@ -77,7 +77,7 @@ object Log4JLogBoot {
 
     if (!log4jUrl.isDefined && !log4jIsConfigured) {
       val domConf = new DOMConfigurator
-      val defPropBytes = defaultProps.toString.getBytes("UTF-8")
+      val defPropBytes = (Box !! LogBoot.defaultProps getOrElse(defaultProps)).toString.getBytes("UTF-8")
       val is = new _root_.java.io.ByteArrayInputStream(defPropBytes)
       domConf.doConfigure(is, LogManager.getLoggerRepository())
     }
@@ -87,7 +87,7 @@ object Log4JLogBoot {
   private def _loggerCls(clz: Class[_]): LiftLogger =  new Log4JLogger(Logger.getLogger(clz))
   private def _logger(name: String): LiftLogger = new Log4JLogger(Logger.getLogger(name))
 
-  def enable() = {
+  def setup() = {
     LogBoot._loggerByName = _logger
     LogBoot._loggerByClass = _loggerCls
     _log4JSetup()
