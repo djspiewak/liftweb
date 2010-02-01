@@ -41,6 +41,18 @@ class Boot {
     User.sitemap ::: Entry.sitemap
 
     LiftRules.setSiteMap(SiteMap(entries:_*))
+
+    // Clear the MDC when the request finishes
+    S.addAround(Log.clearMDC)
+
+    // Put the id of the logged in user in the MDC
+    S.addAround( new LoanWrapper {
+      def apply[T](f: => T): T = {
+        Log.put("connid" -> "?")
+        User.currentUserId.foreach { id => Log.put("userid"->id) }
+        f
+      }
+    })
   }
 }
 
@@ -49,6 +61,14 @@ object DBVendor extends ConnectionManager {
     try {
       Class.forName("org.apache.derby.jdbc.EmbeddedDriver")
       val dm = DriverManager.getConnection("jdbc:derby:lift_example;create=true")
+
+      Log.debug("This is logged with default connid")
+
+      // Lame attempt to scope new MDC value
+      Log.doWith("connid" -> dm.hashCode) {
+        Log.debug("this is logged with new connid")
+      }
+      Log.debug("Now connid is restored")
       Full(dm)
     } catch {
       case e : Exception => e.printStackTrace; Empty

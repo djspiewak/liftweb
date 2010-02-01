@@ -16,6 +16,7 @@
 
 package net.liftweb {
 package util {
+import common.Box
 
 /**
  * Mixin for easy creation of a logger with the name of the class
@@ -28,6 +29,8 @@ trait Logging {
  * The lift Logger
  */
 object Log extends LiftLogger {
+  import org.slf4j.{MDC}
+
   lazy val rootLogger: LiftLogger = LogBoot.loggerByName("lift")
 
   override def trace(msg: => AnyRef) = rootLogger.trace(msg)
@@ -73,10 +76,68 @@ object Log extends LiftLogger {
   def never(msg: => AnyRef, t: => Throwable) {}
 
   override def isTraceEnabled = rootLogger.isTraceEnabled
+
+  /**
+   * Put a (key,value) pair into the Mapped Diagnostic Context
+   *
+   * The logging backend needs to be configured to log these values
+   */
+  def put(kvs: (String,Any)*) = {
+    kvs foreach {v => MDC.put(v._1, v._2.toString)}
+  }
+
+  /**
+   * Clear key from the Mapped Diagnostic Context
+   */
+  def remove(keys: String*) = {
+    keys foreach {k => MDC.remove(k)}
+  }
+
+  /**
+   * Clear all entries from the Mapped Diagnostic Context
+   */
+  def clear() = {
+    MDC.clear
+  }
+
+  /**
+   * Set the Mapped Diagnostic Context for the thread and execute
+   * the function f
+   *
+   * Upon return, the MDC is cleared of the values passed (any
+   * MDC values that existed prior to this call remains)
+   */
+  def doWith[F](mdcValues: (String,Any)*)(f: => F): F = {
+    val old = MDC.getCopyOfContextMap
+    put(mdcValues:_*)
+    try {
+      f
+    } finally {
+      if (old eq null) {
+        clear
+      }
+      else          {
+        MDC.setContextMap(old)
+      }
+    }
+  }
+
+  /**
+   * Build a LoanWrapper to pass into S.addAround() to make sure all key/value pairs
+   * are cleared from the Mapped Diagnostic Context when the request completes
+   */
+  def clearMDC: LoanWrapper = new LoanWrapper {
+    def apply[T](f: => T): T =
+      try {
+        f
+      } finally {
+        clear
+      }
+  }
 }
 
 /**
- * This object provides logging setup utilities.
+ *  This object provides logging setup utilities.
  *
  * See Log4jLogBoot & Slf4jLogBoot for implemeentations
  *
@@ -98,7 +159,6 @@ object LogBoot {
    * </pre>
    */
   var loggerSetup: () => Boolean = Log4JLogBoot.setup
-
 
   /**
    * Return a LiftLogger with the specified name
