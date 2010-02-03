@@ -94,7 +94,7 @@ object Log4JLogBoot {
   }
 }
 
-class Log4JLogger(val logger: Logger) extends LiftLogger {
+@deprecated class Log4JLogger(val logger: Logger) extends LiftLogger {
   override def isTraceEnabled = logger.isTraceEnabled
   override def trace(msg: => AnyRef) = if (isTraceEnabled) logger.trace(msg)
   override def trace(msg: => AnyRef, t: => Throwable) = if (isTraceEnabled) logger.trace(msg, t)

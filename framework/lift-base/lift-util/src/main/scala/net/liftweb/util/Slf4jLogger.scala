@@ -65,7 +65,7 @@ object Slf4jLogBoot {
   /**
    * enable slf4j as logging system for lift (internal, not for lift based application)
    */
-  def enable() {
+  @deprecated def enable() {
     LogBoot._loggerByName = _loggerByName
     LogBoot._loggerByClass = _loggerByClass
   }

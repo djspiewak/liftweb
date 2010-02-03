@@ -203,10 +203,10 @@ trait LiftLogger {
   def fatal(msg: AnyRef): Unit = ()
   def fatal(msg: AnyRef, t: Throwable): Unit = ()
 
-  def level: LiftLogLevels.Value = LiftLogLevels.Off
-  def level_=(level: LiftLogLevels.Value): Unit = ()
+  @deprecated def level: LiftLogLevels.Value = LiftLogLevels.Off
+  @deprecated def level_=(level: LiftLogLevels.Value): Unit = ()
+
   def name: String = "Null"
-  // def parent = logger.getParent
 
   def isInfoEnabled: Boolean = false
   def info(msg: => AnyRef): Unit = ()
