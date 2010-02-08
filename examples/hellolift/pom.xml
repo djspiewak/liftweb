@@ -13,24 +13,11 @@
 
 
   <dependencies>
-    <!-- Include Slf4j and Logback logging -->
+    <!-- Include Logback logging -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <scope>runtime</scope>
-    </dependency>
-
-    <!-- Exclude log4j backend -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>lift-mapper</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 

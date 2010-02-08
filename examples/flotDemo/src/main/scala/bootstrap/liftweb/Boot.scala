@@ -16,6 +16,9 @@ import Helpers._
   */
 class Boot {
   def boot {
+
+    LogBoot.loggerSetup = Log4JLogBoot.setup
+    
     LiftRules.addToPackages("net.liftweb.flot_demo.web")
 
     // Build SiteMap

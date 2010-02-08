@@ -17,6 +17,7 @@
 package net.liftweb {
 package util {
 import common.Box
+import org.slf4j.LoggerFactory
 
 /**
  * Mixin for easy creation of a logger with the name of the class
@@ -144,21 +145,24 @@ object Log extends LiftLogger {
  */
 object LogBoot {
   private[util] lazy val checkConfig: Boolean = loggerSetup()
-  private[util] var _loggerByName: String => LiftLogger = _
-  private[util] var _loggerByClass: Class[_] => LiftLogger = _
+  var _loggerByName: String => LiftLogger = name => new Slf4jLogger(LoggerFactory.getLogger(name))
+  var _loggerByClass: Class[_] => LiftLogger = clz => new Slf4jLogger(LoggerFactory.getLogger(clz))
+
 
   var defaultProps:String = _
 
   /**
-   * Override this to initialize a different logging system
+   * Override this to change the initialization of  the logging system
    *
-   * For instance to use Logback instead of log4j
+   * Return false, to complete disable all logging
+   *
+   * For instance to use Logback:
    *
    * <pre>
    * LogBoot.loggerSetup = LogbackLogBoot.setup
    * </pre>
    */
-  var loggerSetup: () => Boolean = Log4JLogBoot.setup
+  var loggerSetup: () => Boolean = () => true // Initially true to fail fast if no logging backend included
 
   /**
    * Return a LiftLogger with the specified name

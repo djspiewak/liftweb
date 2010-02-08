@@ -87,9 +87,8 @@ object Log4JLogBoot {
   private def _loggerCls(clz: Class[_]): LiftLogger =  new Log4JLogger(Logger.getLogger(clz))
   private def _logger(name: String): LiftLogger = new Log4JLogger(Logger.getLogger(name))
 
+
   def setup() = {
-    LogBoot._loggerByName = _logger
-    LogBoot._loggerByClass = _loggerCls
     _log4JSetup()
   }
 }

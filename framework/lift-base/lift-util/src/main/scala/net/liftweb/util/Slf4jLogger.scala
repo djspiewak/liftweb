@@ -58,14 +58,14 @@ import Helpers._
  * </pre>
  *
  */
-object Slf4jLogBoot {
+@deprecated object Slf4jLogBoot {
   private def _loggerByClass(clz: Class[_]): LiftLogger = new Slf4jLogger(LoggerFactory.getLogger(clz))
   private def _loggerByName(name: String): LiftLogger = new Slf4jLogger(LoggerFactory.getLogger(name))
 
   /**
    * enable slf4j as logging system for lift (internal, not for lift based application)
    */
-  @deprecated def enable() {
+   def enable() {
     LogBoot._loggerByName = _loggerByName
     LogBoot._loggerByClass = _loggerByClass
   }
@@ -73,7 +73,7 @@ object Slf4jLogBoot {
 
 
 /**
- * This object provides logback over Slf4j setup utilities.
+ * This object provides logback setup utilities.
  *
  * To provide your own logback configuration, add a logback.xml
  * file to your classpath.
@@ -116,14 +116,12 @@ object LogbackLogBoot {
       case _ =>
     }
 
-    Slf4jLogBoot.enable
     true
   }
 }
   
 /**
- * Adapter use internaly by lift as Logger, if Slf4jLogBoot is enabled.
- * @see Slf4jLogBoot
+ * Adapter used internally by lift as Logger
  */
 class Slf4jLogger(val logger: Logger) extends LiftLogger {
   override def isTraceEnabled = logger.isTraceEnabled
@@ -156,7 +154,6 @@ class Slf4jLogger(val logger: Logger) extends LiftLogger {
     case LiftLogLevels.Off => !isErrorEnabled
   }
 
-//  override def level_=(level: LiftLogLevels.Value) = logger.setLevel(liftToLog4J(level) )
   override def name = logger.getName
 
   override def isInfoEnabled = logger.isInfoEnabled

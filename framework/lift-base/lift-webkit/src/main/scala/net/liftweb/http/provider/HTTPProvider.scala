@@ -69,9 +69,13 @@ trait HTTPProvider {
       try
       {
         val b: Bootable = loader.map(b => Class.forName(b).newInstance.asInstanceOf[Bootable]) openOr DefaultBootstrap
-        preBoot
-        b.boot
-        postBoot
+
+        // Log here to fail fast if logging is not configured correctly
+        logTime("Booting Lift") {
+          preBoot
+          b.boot
+          postBoot
+        }
 
         actualServlet = new LiftServlet(context)
         actualServlet.init
