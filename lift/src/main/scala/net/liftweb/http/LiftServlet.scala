@@ -362,7 +362,7 @@ class LiftServlet extends HttpServlet {
     requestState.params.toList.flatMap{case (name, when) =>
         sessionActor.getAsyncComponent(name).toList.map(c => (c, toLong(when)))}
 
-    if (actors.isEmpty) Full(new JsCommands(JsCmds.RedirectTo(LiftRules.noCometSessionPage) :: Nil).toResponse)
+    if (actors.isEmpty) Full(new JsCommands(JsCmds.RedirectTo(LiftRules.noCometSessionPage) :: JsCmds.Function("lift_cometEntry", Nil, JsCmds.Noop) :: Nil).toResponse)
     else LiftRules.checkContinuations(requestState.request) match {
       case Some(null) =>
         setupContinuation(requestState, sessionActor, actors)
