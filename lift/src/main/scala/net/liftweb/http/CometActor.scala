@@ -376,7 +376,7 @@ trait CometActor extends Actor with BindHelpers {
     case AskRender =>
       askingWho match {
         case Full(who) => who forward AskRender
-        case _ => if (!deltas.isEmpty || devMode) performReRender(false);
+        case _ => if (!deltas.isEmpty || devMode) performReRender(false, false);
           reply(AnswerRender(new XmlOrJsCmd(spanId, lastRendering, buildSpan _, notices toList),
                              whosAsking openOr this, lastRenderTime, true))
           clearNotices
@@ -467,6 +467,10 @@ trait CometActor extends Actor with BindHelpers {
   }
 
   private def performReRender(sendAll: Boolean) {
+    performReRender(sendAll, true)
+  }
+
+  private def performReRender(sendAll: Boolean, push: Boolean) {
     lastRenderTime = Helpers.nextNum
     wasLastFullRender = sendAll & hasOuter
     deltas = Nil
@@ -479,8 +483,11 @@ trait CometActor extends Actor with BindHelpers {
                  this, lastRenderTime, sendAll)
 
     clearNotices
-    listeners.foreach(_._2(rendered))
-    listeners = Nil
+
+    if (push) {
+      listeners.foreach(_._2(rendered))
+      listeners = Nil
+    }
   }
 
   protected def partialUpdate(cmd: => JsCmd) {
