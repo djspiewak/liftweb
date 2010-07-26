@@ -349,12 +349,12 @@ trait CometActor extends Actor with BindHelpers {
       askingWho match {
         case Full(who) => who forward l
         case _ =>
-          if (when < lastRenderTime) {
+/*          if (when < lastRenderTime) {
             toDo(AnswerRender(new XmlOrJsCmd(spanId, lastRendering,
                                              buildSpan _, notices toList),
                               whosAsking openOr this, lastRenderTime, wasLastFullRender))
             clearNotices
-          } else {
+          } else { */
             deltas.filter(_.when > when) match {
               case Nil => listeners = (seqId, toDo) :: listeners
 
@@ -364,7 +364,7 @@ trait CometActor extends Actor with BindHelpers {
                                    whosAsking openOr this, hd.when, false))
                 clearNotices
             }
-          }
+//          }
       }
 
     case PerformSetupComet =>
