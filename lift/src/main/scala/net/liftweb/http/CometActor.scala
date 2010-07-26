@@ -473,18 +473,18 @@ trait CometActor extends Actor with BindHelpers {
   private def performReRender(sendAll: Boolean, push: Boolean) {
     lastRenderTime = Helpers.nextNum
     wasLastFullRender = sendAll & hasOuter
-    deltas = Nil
 
     lastRendering = render ++ jsonInCode
     theSession.updateFunctionMap(S.functionMap, spanId, lastRenderTime)
 
-    val rendered: AnswerRender =
-    AnswerRender(new XmlOrJsCmd(spanId, lastRendering, buildSpan _, notices toList),
-                 this, lastRenderTime, sendAll)
-
-    clearNotices
-
     if (push) {
+      val rendered: AnswerRender =
+      AnswerRender(new XmlOrJsCmd(spanId, lastRendering, buildSpan _, notices toList),
+                   this, lastRenderTime, sendAll)
+
+      deltas = Nil
+
+      clearNotices
       listeners.foreach(_._2(rendered))
       listeners = Nil
     }
